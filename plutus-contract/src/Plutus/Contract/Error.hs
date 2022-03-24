@@ -32,16 +32,6 @@ import Plutus.Contract.Effects (ChainIndexResponse)
 import Wallet.Error (WalletAPIError)
 import Wallet.Types (EndpointDescription (EndpointDescription), EndpointValue (EndpointValue))
 
--- | An error
-newtype MatchingError = WrongVariantError { unWrongVariantError :: Text }
-    deriving stock (Eq, Ord, Show, Generic)
-    deriving anyclass (Aeson.ToJSON, Aeson.FromJSON)
-makeClassyPrisms ''MatchingError
-
-instance Pretty MatchingError where
-  pretty = \case
-    WrongVariantError t -> "Wrong variant:" <+> pretty t
-
 -- | An error emitted when an 'Assertion' fails.
 newtype AssertionError = GenericAssertion { unAssertionError :: T.Text }
     deriving stock (Show, Eq, Generic)
@@ -55,6 +45,16 @@ instance Pretty AssertionError where
 -- | This lets people use 'T.Text' as their error type.
 instance AsAssertionError T.Text where
     _AssertionError = prism' (T.pack . show) (const Nothing)
+
+-- | An error
+newtype MatchingError = WrongVariantError { unWrongVariantError :: Text }
+    deriving stock (Eq, Ord, Show, Generic)
+    deriving anyclass (Aeson.ToJSON, Aeson.FromJSON)
+makeClassyPrisms ''MatchingError
+
+instance Pretty MatchingError where
+  pretty = \case
+    WrongVariantError t -> "Wrong variant:" <+> pretty t
 
 data ContractError =
     WalletContractError WalletAPIError
